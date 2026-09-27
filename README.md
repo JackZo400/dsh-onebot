@@ -1,6 +1,8 @@
 # dsh-onebot
 
-给 [DeepSeek Harness](https://github.com/deepseek-ai)（dsh）用的 **QQ 通道**：一个标准的
+[English](README.en.md) | 简体中文
+
+给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（dsh）用的 **QQ 通道**：一个标准的
 [OneBot 11](https://github.com/botuniverse/onebot-11) 客户端 —— 连上你自己跑的那个 OneBot 实现，
 把你的 dsh Agent 接进 QQ 群和私聊。
 
@@ -52,7 +54,7 @@ QQ 用户 <── 你的 OneBot 实现 <──API───────┘
 
 ---
 
-## 装
+## 安装
 
 ```bash
 dsh plugin --profile web add github:JackZo400/dsh-onebot
@@ -144,7 +146,41 @@ dsh ... 2>&1 | grep '\[dsh-onebot\]'
 
 ---
 
-## 支持的 / 不支持的
+## 给别的插件用的服务
+
+插件 `ctx.provide('onebot', …)`，别的插件（比如定时任务、主动推送）可以直接用：
+
+```js
+const onebot = ctx.get('onebot')
+await onebot.send('group:987654321', '开会了', { replyTo: undefined })
+await onebot.sendGroupMsg(987654321, [{ text: '嗨 ' }, { at: '111222333' }, { image: '/tmp/a.png' }])
+const stats = onebot.stats()   // { events, messages, dispatched, replied, skipped, errors, sessions, connected, pending, attempts }
+```
+
+## 测试
+
+两条都是**离线**的：假 WebSocket、假 `fetch`、假事件 JSON、假 ctx，不需要网络也不需要 dsh。
+
+```bash
+node test/selftest.mjs          # 协议层（纯函数）：CQ 编解码 / 事件解析 / 发送构造 / API 错误 / 退避
+node test/plugin-selftest.mjs   # 插件层：拿假 ctx 把 apply() 真跑起来，灌事件看它有没有真的收发
+```
+
+覆盖的关键点（都是踩过坑才写的）：
+
+1. CQ 码字符串与 segment 数组解析出**同样的**结果
+2. CQ 转义/反转义往返一致（含 `&` 的还原顺序）
+3. `@ 我` 的判定（`[CQ:at,qq=<self_id>]` 与 segment 形式的 at；`@全体` 不算）
+4. 自己发出去的消息（`user_id == self_id` / `message_sent`）**不会**被派给 agent
+5. 引用（`reply` 段）能取到被引用那条的内容（本地缓存 + `get_msg` 兜底）
+6. 发送时 `text + at + image` 混合会构造成正确的消息段（`reply` 段永远在最前）
+7. HTTP 调用失败 / 超时 / `retcode≠0` 的错误路径
+8. 断线重连退避递增、且测试里一秒都不真等（时间可注入）
+
+这两份自检是**会失败**的：把 `escapeCq` 里的逗号删掉、把回声过滤去掉、把退避改成常数，
+自检分别报错并以非 0 退出（这也是我们验证"测试不是摆设"的办法）。
+
+## 已知局限（支持的 / 不支持的）
 
 **支持**
 
@@ -174,40 +210,6 @@ dsh ... 2>&1 | grep '\[dsh-onebot\]'
 - **多账号同时接**：一份配置对一个账号。多账号理论上可以插多个实例、各自 `selfId`，但没测过。
 - **设置界面**：没有 UI，全在配置里。
 
-## 给别的插件用的服务
-
-插件 `ctx.provide('onebot', …)`，别的插件（比如定时任务、主动推送）可以直接用：
-
-```js
-const onebot = ctx.get('onebot')
-await onebot.send('group:987654321', '开会了', { replyTo: undefined })
-await onebot.sendGroupMsg(987654321, [{ text: '嗨 ' }, { at: '111222333' }, { image: '/tmp/a.png' }])
-const stats = onebot.stats()   // { events, messages, dispatched, replied, skipped, errors, sessions, connected, pending, attempts }
-```
-
-## 自检
-
-两条都是**离线**的：假 WebSocket、假 `fetch`、假事件 JSON、假 ctx，不需要网络也不需要 dsh。
-
-```bash
-node test/selftest.mjs          # 协议层（纯函数）：CQ 编解码 / 事件解析 / 发送构造 / API 错误 / 退避
-node test/plugin-selftest.mjs   # 插件层：拿假 ctx 把 apply() 真跑起来，灌事件看它有没有真的收发
-```
-
-覆盖的关键点（都是踩过坑才写的）：
-
-1. CQ 码字符串与 segment 数组解析出**同样的**结果
-2. CQ 转义/反转义往返一致（含 `&` 的还原顺序）
-3. `@ 我` 的判定（`[CQ:at,qq=<self_id>]` 与 segment 形式的 at；`@全体` 不算）
-4. 自己发出去的消息（`user_id == self_id` / `message_sent`）**不会**被派给 agent
-5. 引用（`reply` 段）能取到被引用那条的内容（本地缓存 + `get_msg` 兜底）
-6. 发送时 `text + at + image` 混合会构造成正确的消息段（`reply` 段永远在最前）
-7. HTTP 调用失败 / 超时 / `retcode≠0` 的错误路径
-8. 断线重连退避递增、且测试里一秒都不真等（时间可注入）
-
-这两份自检是**会失败**的：把 `escapeCq` 里的逗号删掉、把回声过滤去掉、把退避改成常数，
-自检分别报错并以非 0 退出（这也是我们验证"测试不是摆设"的办法）。
-
 ## 这一版是从哪来的
 
 它是把一条**真在跑**的私有 QQ 通道重写成标准协议实现的：协议解析（CQ 码、@ 判定、引用、
@@ -218,6 +220,10 @@ node test/plugin-selftest.mjs   # 插件层：拿假 ctx 把 apply() 真跑起�
 内容门禁、消息攒批与日结、表情包库、语音转写、主人指令 —— 那些跟协议无关，
 在一个通用插件里只会变成"别人关不掉的行为"。
 
-## 许可
+## License
 
 MIT，见 `LICENSE`。
+
+## English
+
+→ Full English README: [README.en.md](README.en.md)
