@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="OneBot 11 Channel">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7ddcff"/>
+      <stop offset="1" stop-color="#7c8cff"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#101422"/>
+  <!-- 两个对话气泡：一头是 QQ，一头是 dsh agent -->
+  <path d="M13 17h20a4 4 0 0 1 4 4v9a4 4 0 0 1-4 4H20l-7 6v-6a4 4 0 0 1-4-4v-9a4 4 0 0 1 4-4z" fill="url(#g)"/>
+  <!-- 事件从一头流到另一头 -->
+  <g stroke="#8fe3ff" stroke-width="2" stroke-linecap="round" opacity="0.95">
+    <line x1="30" y1="32" x2="36" y2="40"/>
+    <line x1="34" y1="28" x2="40" y2="36"/>
+  </g>
+  <path d="M37 33h14a4 4 0 0 1 4 4v7a4 4 0 0 1-4 4h-4v5l-6-5h-4a4 4 0 0 1-4-4v-7a4 4 0 0 1 4-4z" fill="#eaf1ff"/>
+  <circle cx="43" cy="40.5" r="1.7" fill="#101422"/>
+  <circle cx="49" cy="40.5" r="1.7" fill="#101422"/>
+</svg>

@@ -1,0 +1,54 @@
+{
+  "name": "dsh-onebot",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "给 dsh 的 QQ 通道（OneBot 11 标准客户端）：正向 WebSocket 收事件 / HTTP API 发送，一个会话一个 dsh agent。零依赖。",
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "onebot",
+    "onebot11",
+    "qq",
+    "qqbot",
+    "channel",
+    "chatbot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JackZo400/dsh-onebot.git"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./cq": "./src/cq.js",
+    "./event": "./src/event.js",
+    "./api": "./src/api.js",
+    "./session": "./src/session.js",
+    "./package.json": "./package.json"
+  },
+  "icon": "./icon.svg",
+  "meta": {
+    "title": "OneBot 11 Channel",
+    "description": "QQ 通道（OneBot 11）：正向 WS / HTTP API，一个会话一个 dsh agent"
+  },
+  "files": [
+    "index.js",
+    "src",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node test/selftest.mjs && node test/plugin-selftest.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

@@ -1,0 +1,99 @@
+# dsh-onebot 的示例配置（bundle patch）。
+#
+# 装完插件之后按你自己的 OneBot 实现改这一份 —— 最少只要填两处：
+#   1. ws   （正向 WebSocket 地址：收事件 + 调 API）
+#   2. accessToken（如果你在实现那边设了 token）
+#
+# 只想先试试通不通：ws 填上、accessToken 留空、private 保持 false、groups 留空，
+# 然后在群里 @ 一下你的机器人。
+- insert:
+    - id: onebot
+      name: dsh-onebot
+      config:
+        # ---- 连哪里 ----
+        # 正向 WebSocket（插件当客户端连过去）。收事件和调 API 都走它。
+        #   常见形态：
+        #     go-cqhttp / Lagrange：ws://127.0.0.1:3001
+        #     NapCat：ws://127.0.0.1:3001  或 ws://127.0.0.1:3001/onebot/v11/ws
+        #   路径按你实现里配的那个来，插件不猜。
+        ws: ws://127.0.0.1:3001
+
+        # HTTP API 地址（可留空）。填了的话，**发消息**走 HTTP，收事件还是走 ws。
+        # 只填 http 不填 ws = 只能发、收不到 —— 因为 OneBot 的 HTTP API 不推送事件。
+        http: ''
+
+        # access_token：HTTP 走 `Authorization: Bearer <token>`，
+        # WebSocket 走 `?access_token=<token>`（Node 自带的 WebSocket 设不了自定义头，
+        # 而 query 参数是 OneBot 标准允许的写法）。
+        accessToken: ''
+
+        # ---- 我是谁 / 理谁 ----
+        # 机器人 QQ 号。留空 = 用每条事件里的 self_id（多账号部署下这样才对）。
+        selfId: ''
+
+        # 允许的群号；留空 = 所有群（但群里默认只有 @ 我才理，不 @ 的消息不花钱）。
+        # 例：groups: [123456789, 987654321]
+        groups: []
+
+        # 是否响应私聊。默认关：私聊是最容易被陌生人白嫖 token 的口子。
+        private: false
+
+        # 私聊白名单（只有 private: true 才有意义）；留空 = 不限。
+        # 例：users: [123456789]
+        users: []
+
+        # 群里必须 @ 我才派给 agent。false = 群里每条消息都进模型（**很费钱，慎用**）。
+        requireMention: true
+
+        # ---- 怎么回 ----
+        # 回复时引用触发它的那条消息：群里这样别人才分得清在回谁。
+        quoteReply: true
+
+        # 图要不要把直链写进正文（有的实现给的是内网地址，默认不带）。
+        imageLinks: false
+
+        # 发送格式：array（消息段数组，最稳）或 string（CQ 码串）。
+        # 有的老实现只吃其中一种；出问题先换这个试试。
+        format: array
+
+        # ---- 用哪个模型 ----
+        # 不填就用 dsh 自己的默认路由/模型。想给这条通道单独计费就填上。
+        # provider: deepseek
+        # model: deepseek-chat
+
+        # 会话的工作目录（文件的根）。不填 = dsh 进程的工作目录。
+        # cwd: /srv/dsh-qq
+
+        # 可选的 dsh agent 预设名（装了 agentPresets 服务才生效）。
+        # preset: ''
+
+        # 信封里时间显示用哪个时区。
+        tz: Asia/Shanghai
+
+        # 排错的把这张开：没 @ 我的群消息、发给模型的原文都会打出来。
+        debug: false
+
+        # ---- 排队与超时 ----
+        queue:
+          # 同一个会话最多排几条，超了直接丢（前面堵着的时候，积压只会让回复越来越晚）
+          max: 5
+          # 一条消息最长处理多久（兜底：agent 卡住时别把整个会话的队列堵死）
+          timeoutMs: 180000
+
+        timeouts:
+          # 单次 API 调用超时
+          callMs: 15000
+          # 等 WebSocket 建立的时间
+          readyMs: 10000
+
+        # ---- 断线重连 ----
+        # 延迟 = baseMs × factor^n，封顶 maxMs，再加 ±jitter 的抖动（多个实例同时重连时别一起砸）。
+        # 只有「连上并且稳了 30 秒以上」才会把退避清零 —— 否则服务端一连接就断会变成疯狂重连。
+        reconnect:
+          enabled: true
+          baseMs: 1000
+          maxMs: 60000
+          factor: 2
+          jitter: 0.2
+          # 前几次重连每次都记日志，之后只在第 1/2/4/8/16… 次记（服务端挂半小时也不会刷爆日志）
+          quietAfter: 5
