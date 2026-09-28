@@ -9,6 +9,16 @@ run yourself and brings your dsh agent into QQ groups and private chats.
 Zero dependencies: only Node built-ins (`fetch` / `WebSocket` / `node:crypto`); there is no npm package to
 install.
 
+> **More mature options in the same space**: for one codebase that connects several platforms at once
+> (WeChat / Feishu / DingTalk / WeCom / Slack / Telegram / Discord / QQ ...) through each platform's
+> official bot credentials, use [xmanrui/dsh-im](https://github.com/xmanrui/dsh-im); for QQ only there are
+> [cheesehaqi/dsh-qq-onebot-bridge](https://github.com/cheesehaqi/dsh-qq-onebot-bridge) and
+> [Hoshino-Yumetsuki/dsh-onebot](https://github.com/Hoshino-Yumetsuki/dsh-onebot).
+> Why we keep this one: it is a **standard OneBot 11 channel with zero dependencies** — the version our own
+> production machine runs (the personal-account route); written against the protocol, switching OneBot
+> implementations does not mean switching plugins.
+> Install one of the above first; they cover more ground than this one does.
+
 ---
 
 ## Why OneBot 11

@@ -8,6 +8,11 @@
 
 零依赖：只用 Node 内置的东西（`fetch` / `WebSocket` / `node:crypto`），没有 npm 包要装。
 
+> **同类里更成熟的选择**：想一份代码接多平台（微信 / 飞书 / 钉钉 / 企微 / Slack / TG / Discord / QQ…），走官方机器人凭据的，用 [xmanrui/dsh-im](https://github.com/xmanrui/dsh-im)；只接 QQ 的，还有 [cheesehaqi/dsh-qq-onebot-bridge](https://github.com/cheesehaqi/dsh-qq-onebot-bridge) 和 [Hoshino-Yumetsuki/dsh-onebot](https://github.com/Hoshino-Yumetsuki/dsh-onebot)。
+> 我们这份留着的理由：**OneBot 11 标准通道、零依赖**——它就是我们自己线上那台机器在用的版本（个人号路线），
+> 按协议写，换 OneBot 实现不用换插件。
+> 要装先去装上面那几个，它们覆盖的面比这份宽。
+
 ---
 
 ## 为什么是 OneBot 11
